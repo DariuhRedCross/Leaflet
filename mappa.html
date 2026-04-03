@@ -8,62 +8,85 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-body { margin:0; font-family: Arial, sans-serif; display:flex; }
-
-#sidebar {
-  width: 300px;
-  height: 100vh;
-  overflow-y: auto;
-  background: #f7f7f7;
-  border-right: 1px solid #ccc;
-  padding: 10px;
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  display:flex;
 }
 
+/* SIDEBAR */
+#sidebar {
+  width: 320px;
+  height: 100vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-right: 4px solid #d32f2f;
+  padding: 15px;
+}
+
+#sidebar h2 {
+  color: #d32f2f;
+  text-align: center;
+}
+
+/* MAPPA */
 #map {
   flex: 1;
   height: 100vh;
 }
 
+/* CARD DAE */
 .card {
   background: white;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-left: 5px solid #d32f2f;
   border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: 0.2s;
 }
 
 .card:hover {
-  background: #e6f2ff;
+  background: #ffecec;
 }
 
-h2 {
-  margin-top: 0;
+/* HEADER */
+.header {
+  background: #d32f2f;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 8px;
+  margin-bottom: 15px;
 }
 </style>
 </head>
 <body>
 
 <div id="sidebar">
-  <h2>DAE disponibili</h2>
+  <div class="header">❤️ Trova DAE</div>
+  <h2>Fiumefreddo</h2>
   <div id="list"></div>
 </div>
 
 <div id="map"></div>
 
 <script>
-// Mappa centrata su Fiumefreddo
+// MAPPA
 var map = L.map('map').setView([37.791, 15.209], 14);
 
-// Tile
+// TILE
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
-// Icona DAE
+// ICONA ROSSA (marker semplice)
 var daeIcon = L.icon({
-  iconUrl: 'https://cdn-icons-png.flaticon.com/512/2967/2967350.png',
-  iconSize: [30, 30]
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
 });
 
 // DATI DAE
@@ -90,20 +113,17 @@ var daeList = [
 
 var listDiv = document.getElementById("list");
 
-// Loop DAE
+// LOOP
 daeList.forEach(function(dae) {
 
-  // Marker
   var marker = L.marker([dae.lat, dae.lng], {icon: daeIcon})
     .addTo(map)
-    .bindPopup("<b>" + dae.nome + "</b><br>" + dae.info);
+    .bindPopup("<b style='color:#d32f2f'>" + dae.nome + "</b><br>" + dae.info);
 
-  // Card sidebar
   var card = document.createElement("div");
   card.className = "card";
   card.innerHTML = "<b>" + dae.nome + "</b><br>" + dae.info;
 
-  // Click su card → zoom
   card.onclick = function() {
     map.setView([dae.lat, dae.lng], 17);
     marker.openPopup();
@@ -116,10 +136,13 @@ daeList.forEach(function(dae) {
 map.locate({setView: true, maxZoom: 15});
 
 map.on('locationfound', function(e) {
-  L.marker(e.latlng).addTo(map)
-    .bindPopup("Sei qui").openPopup();
+  L.circle(e.latlng, {
+    radius: 30,
+    color: '#d32f2f',
+    fillColor: '#d32f2f',
+    fillOpacity: 0.5
+  }).addTo(map).bindPopup("Sei qui");
 });
-
 </script>
 
 </body>
