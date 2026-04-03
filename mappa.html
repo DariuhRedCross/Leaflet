@@ -1,37 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>Trova DAE - Fiumefreddo</title>
+<meta charset="utf-8" />
+<title>Trova DAE - Fiumefreddo</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <style>
-    body { margin: 0; }
-    #map { height: 100vh; }
-  </style>
+<style>
+body { margin:0; font-family: Arial, sans-serif; display:flex; }
+
+#sidebar {
+  width: 300px;
+  height: 100vh;
+  overflow-y: auto;
+  background: #f7f7f7;
+  border-right: 1px solid #ccc;
+  padding: 10px;
+}
+
+#map {
+  flex: 1;
+  height: 100vh;
+}
+
+.card {
+  background: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+  background: #e6f2ff;
+}
+
+h2 {
+  margin-top: 0;
+}
+</style>
 </head>
 <body>
+
+<div id="sidebar">
+  <h2>DAE disponibili</h2>
+  <div id="list"></div>
+</div>
 
 <div id="map"></div>
 
 <script>
-// 1. Inizializza mappa (Fiumefreddo di Sicilia circa)
+// Mappa centrata su Fiumefreddo
 var map = L.map('map').setView([37.791, 15.209], 14);
 
-// 2. Tile OpenStreetMap
+// Tile
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
-// 3. Icona personalizzata (tipo DAE)
+// Icona DAE
 var daeIcon = L.icon({
   iconUrl: 'https://cdn-icons-png.flaticon.com/512/2967/2967350.png',
-  iconSize: [32, 32]
+  iconSize: [30, 30]
 });
 
-// 4. Lista DAE (MODIFICA QUI)
+// DATI DAE
 var daeList = [
   {
     nome: "Piazza Municipio",
@@ -53,11 +88,36 @@ var daeList = [
   }
 ];
 
-// 5. Aggiungi marker
+var listDiv = document.getElementById("list");
+
+// Loop DAE
 daeList.forEach(function(dae) {
-  L.marker([dae.lat, dae.lng], {icon: daeIcon})
+
+  // Marker
+  var marker = L.marker([dae.lat, dae.lng], {icon: daeIcon})
     .addTo(map)
     .bindPopup("<b>" + dae.nome + "</b><br>" + dae.info);
+
+  // Card sidebar
+  var card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = "<b>" + dae.nome + "</b><br>" + dae.info;
+
+  // Click su card → zoom
+  card.onclick = function() {
+    map.setView([dae.lat, dae.lng], 17);
+    marker.openPopup();
+  };
+
+  listDiv.appendChild(card);
+});
+
+// GEOLOCALIZZAZIONE
+map.locate({setView: true, maxZoom: 15});
+
+map.on('locationfound', function(e) {
+  L.marker(e.latlng).addTo(map)
+    .bindPopup("Sei qui").openPopup();
 });
 
 </script>
