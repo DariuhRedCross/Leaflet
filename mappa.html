@@ -2,13 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Mappa Leaflet</title>
+  <title>Trova DAE - Fiumefreddo</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    #map { height: 500px; }
+    body { margin: 0; }
+    #map { height: 100vh; }
   </style>
 </head>
 <body>
@@ -16,15 +17,49 @@
 <div id="map"></div>
 
 <script>
-  var map = L.map('map').setView([41.9028, 12.4964], 13);
+// 1. Inizializza mappa (Fiumefreddo di Sicilia circa)
+var map = L.map('map').setView([37.791, 15.209], 14);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
-  }).addTo(map);
+// 2. Tile OpenStreetMap
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap'
+}).addTo(map);
 
-  L.marker([41.9028, 12.4964]).addTo(map)
-    .bindPopup('Roma')
-    .openPopup();
+// 3. Icona personalizzata (tipo DAE)
+var daeIcon = L.icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/2967/2967350.png',
+  iconSize: [32, 32]
+});
+
+// 4. Lista DAE (MODIFICA QUI)
+var daeList = [
+  {
+    nome: "Piazza Municipio",
+    lat: 37.7915,
+    lng: 15.2102,
+    info: "Accessibile H24"
+  },
+  {
+    nome: "Campo Sportivo",
+    lat: 37.7890,
+    lng: 15.2050,
+    info: "Solo durante eventi"
+  },
+  {
+    nome: "Scuola Media",
+    lat: 37.7930,
+    lng: 15.2125,
+    info: "Accesso limitato"
+  }
+];
+
+// 5. Aggiungi marker
+daeList.forEach(function(dae) {
+  L.marker([dae.lat, dae.lng], {icon: daeIcon})
+    .addTo(map)
+    .bindPopup("<b>" + dae.nome + "</b><br>" + dae.info);
+});
+
 </script>
 
 </body>
