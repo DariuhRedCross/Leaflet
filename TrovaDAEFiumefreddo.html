@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<title>Trova DAE - Croce Rossa Italiana</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+:root{
+  --cri-red:#e30613;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+  overflow:hidden;
+}
+
+/* MAPPA */
+#map{
+  position:absolute;
+  inset:0;
+  z-index:1;
+}
+
+/* TOP BAR */
+.topbar{
+  position:absolute;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:10;
+  background:var(--cri-red);
+  color:#fff;
+  padding:12px 22px;
+  border-radius:999px;
+  font-weight:700;
+  box-shadow:0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* SIDEBAR MODERNA */
+.sidebar{
+  position:absolute;
+  top:80px;
+  left:15px;
+  bottom:15px;
+  width:340px;
+  z-index:10;
+
+  background:rgba(255,255,255,0.88);
+  backdrop-filter:blur(14px);
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
+  overflow:auto;
+  padding:15px;
+}
+
+.sidebar h2{
+  color:var(--cri-red);
+  margin-bottom:10px;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  margin:10px 0;
+  padding:14px;
+  border-radius:12px;
+  cursor:pointer;
+  transition:.25s;
+  border-left:4px solid var(--cri-red);
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+}
+
+.card:hover{
+  transform:scale(1.03);
+  background:#fff5f5;
+}
+
+/* BUTTON GPS */
+.fab{
+  position:absolute;
+  right:20px;
+  bottom:20px;
+  z-index:10;
+  background:var(--cri-red);
+  color:white;
+  padding:14px 18px;
+  border-radius:999px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.25);
+  cursor:pointer;
+  font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">❤️ Trova DAE - Croce Rossa Italiana</div>
+
+<div id="map"></div>
+
+<div class="sidebar">
+  <h2>Defibrillatori (DAE)</h2>
+  <div id="list"></div>
+</div>
+
+<div class="fab" onclick="locateUser()">📍 La mia posizione</div>
+
+<script>
+
+// ================= MAPPA =================
+var map = L.map('map').setView([37.791, 15.209], 14);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'&copy; OpenStreetMap'
+}).addTo(map);
+
+// ================= ICONA DAE ROSSO + FULMINE BIANCO =================
+var daeIcon = L.divIcon({
+  className: "dae-device",
+  html: `
+    <div style="
+      width:44px;
+      height:44px;
+      background:#e30613;
+      border:2px solid #b00510;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 10px 25px rgba(0,0,0,0.25);
+      position:relative;
+    ">
+
+      <!-- piccolo display -->
+      <div style="
+        position:absolute;
+        top:6px;
+        width:18px;
+        height:10px;
+        background:rgba(255,255,255,0.25);
+        border-radius:2px;
+      "></div>
+
+      <!-- fulmine bianco -->
+      <svg width="22" height="22" viewBox="0 0 24 24" style="margin-top:10px;">
+        <path d="M13 2L4 14h7l-1 8 10-13h-6l-1-7z"
+              fill="#ffffff"/>
+      </svg>
+
+    </div>
+  `,
+  iconSize:[44,44],
+  iconAnchor:[22,44]
+});
+
+// ================= DATI DAE =================
+const daeList=[
+ {nome:"Piazza Municipio",lat:37.7915,lng:15.2102,info:"Accesso H24"},
+ {nome:"Campo Sportivo",lat:37.789,lng:15.205,info:"Durante eventi"},
+ {nome:"Scuola Media",lat:37.793,lng:15.2125,info:"Accesso limitato"},
+ {nome:"Centro Civico",lat:37.7902,lng:15.2078,info:"Struttura pubblica"}
+];
+
+const list=document.getElementById("list");
+
+// ================= CREAZIONE MARKER + LISTA =================
+daeList.forEach(d=>{
+
+  let marker = L.marker([d.lat,d.lng],{icon:daeIcon})
+    .addTo(map)
+    .bindPopup(`
+      <b style="color:#e30613">DAE</b><br>
+      <b>${d.nome}</b><br>
+      ${d.info}
+    `);
+
+  let card=document.createElement("div");
+  card.className="card";
+  card.innerHTML=`<b>${d.nome}</b><br><small>${d.info}</small>`;
+
+  card.onclick=()=>{
+    map.setView([d.lat,d.lng],17);
+    marker.openPopup();
+  };
+
+  list.appendChild(card);
+});
+
+// ================= GEOLOCALIZZAZIONE =================
+function locateUser(){
+  map.locate({setView:true,maxZoom:16});
+}
+
+map.on('locationfound',e=>{
+  L.circle(e.latlng,{
+    radius:60,
+    color:'#e30613',
+    fillColor:'#e30613',
+    fillOpacity:0.2
+  }).addTo(map).bindPopup("📍 Sei qui");
+});
+
+</script>
+
+</body>
+</html>
